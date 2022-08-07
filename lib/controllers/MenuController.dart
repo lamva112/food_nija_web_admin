@@ -7,6 +7,7 @@ class MenuController extends ChangeNotifier {
       GlobalKey<ScaffoldState>();
   final GlobalKey<ScaffoldState> _ordersScaffoldKey =
       GlobalKey<ScaffoldState>();
+
   // Getters
   GlobalKey<ScaffoldState> get getScaffoldKey => _scaffoldKey;
   GlobalKey<ScaffoldState> get getgridscaffoldKey => _gridScaffoldKey;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:food_nija_web_admin/controllers/MenuController.dart';
 import 'package:food_nija_web_admin/inner_screens/add_prod.dart';
+import 'package:food_nija_web_admin/inner_screens/add_res.dart';
 import 'package:food_nija_web_admin/responsive.dart';
 import 'package:food_nija_web_admin/services/utils.dart';
 import 'package:food_nija_web_admin/widgets/buttons.dart';
@@ -11,6 +12,7 @@ import 'package:food_nija_web_admin/widgets/orders_list.dart';
 import 'package:food_nija_web_admin/widgets/text_widget.dart';
 import 'package:provider/provider.dart';
 import '../consts/constants.dart';
+import '../inner_screens/all_restaurans.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -35,8 +37,10 @@ class DashboardScreen extends StatelessWidget {
               height: 20,
             ),
             TextWidget(
-              text: 'restaurants',
+              text: 'restaurant',
               color: color,
+              textSize: 24,
+              isTitle: true,
             ),
             const SizedBox(
               height: 15,
@@ -46,7 +50,14 @@ class DashboardScreen extends StatelessWidget {
               child: Row(
                 children: [
                   ButtonsWidget(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AllRestauransScreen(),
+                          ),
+                        );
+                      },
                       text: 'View All',
                       icon: Icons.store,
                       backgroundColor: Colors.blue),
@@ -56,11 +67,11 @@ class DashboardScreen extends StatelessWidget {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const UploadProductForm(),
+                            builder: (context) => const UploadrestaurantForm(),
                           ),
                         );
                       },
-                      text: 'Add foods',
+                      text: 'Add restaurant',
                       icon: Icons.add,
                       backgroundColor: Colors.blue),
                 ],

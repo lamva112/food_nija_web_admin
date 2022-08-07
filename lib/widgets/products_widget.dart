@@ -37,8 +37,8 @@ class _ProductWidgetState extends State<ProductWidget> {
                   children: [
                     Flexible(
                       flex: 3,
-                      child: Image.network(
-                        'https://www.lifepng.com/wp-content/uploads/2020/11/Apricot-Large-Single-png-hd.png',
+                      child: Image.asset(
+                        'assets/images/Menu.png',
                         fit: BoxFit.fill,
                         // width: screenWidth * 0.12,
                         height: size.width * 0.12,
@@ -66,39 +66,27 @@ class _ProductWidgetState extends State<ProductWidget> {
                 const SizedBox(
                   height: 2,
                 ),
-                Row(
-                  children: [
-                    TextWidget(
-                      text: '\$1.99',
-                      color: color,
-                      textSize: 18,
-                    ),
-                    const SizedBox(
-                      width: 7,
-                    ),
-                    Visibility(
-                        visible: true,
-                        child: Text(
-                          '\$3.89',
-                          style: TextStyle(
-                              decoration: TextDecoration.lineThrough,
-                              color: color),
-                        )),
-                    const Spacer(),
-                    TextWidget(
-                      text: '1Kg',
-                      color: color,
-                      textSize: 18,
-                    ),
-                  ],
+                TextWidget(
+                  text: '\$7',
+                  color: color,
+                  textSize: 12,
                 ),
                 const SizedBox(
                   height: 2,
                 ),
                 TextWidget(
-                  text: 'Title',
+                  text: 'Herbal Pancake',
                   color: color,
-                  textSize: 24,
+                  textSize: 20,
+                  isTitle: true,
+                ),
+                const SizedBox(
+                  height: 2,
+                ),
+                TextWidget(
+                  text: 'Warung Heral',
+                  color: Colors.grey,
+                  textSize: 18,
                   isTitle: true,
                 ),
               ],

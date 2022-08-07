@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:food_nija_web_admin/inner_screens/add_prod.dart';
+import 'package:food_nija_web_admin/inner_screens/add_res.dart';
 import 'package:food_nija_web_admin/services/utils.dart';
 import 'package:food_nija_web_admin/widgets/text_widget.dart';
 
@@ -15,7 +17,6 @@ class _RestaurantWidgetState extends State<RestaurantWidget> {
   @override
   Widget build(BuildContext context) {
     Size size = Utils(context).getScreenSize;
-
     final color = Utils(context).color;
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -38,33 +39,52 @@ class _RestaurantWidgetState extends State<RestaurantWidget> {
                     Flexible(
                       flex: 3,
                       child: Image.asset(
-                        'assets/images/RestaurantImage.png',
+                        'assets/images/RestaurantCake.png',
                         fit: BoxFit.fill,
-                        width: size.width * 0.18,
+                        width: size.width * 0.25,
                         height: size.width * 0.12,
                       ),
                     ),
-                    const Spacer(),
+                    // const Spacer(),
                     PopupMenuButton(
-                        itemBuilder: (context) => [
-                              PopupMenuItem(
-                                onTap: () {},
-                                child: Text('Edit'),
-                                value: 1,
-                              ),
-                              PopupMenuItem(
-                                onTap: () {},
-                                child: Text(
-                                  'Delete',
-                                  style: TextStyle(color: Colors.red),
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          child: InkWell(
+                            onTap: (() {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const UploadProductForm(),
                                 ),
-                                value: 2,
-                              ),
-                            ])
+                              );
+                            }),
+                            child: Text(
+                              'Add Foods',
+                              style: TextStyle(color: Colors.green),
+                            ),
+                          ),
+                          value: 3,
+                        ),
+                        PopupMenuItem(
+                          onTap: () {},
+                          child: Text('Edit'),
+                          value: 1,
+                        ),
+                        PopupMenuItem(
+                          onTap: () {},
+                          child: Text(
+                            'Delete',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                          value: 2,
+                        ),
+                      ],
+                    ),
                   ],
                 ),
                 const SizedBox(
-                  height: 2,
+                  height: 12,
                 ),
                 TextWidget(
                   text: 'Healthy Food',

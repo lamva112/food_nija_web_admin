@@ -9,28 +9,26 @@ import 'package:food_nija_web_admin/responsive.dart';
 import 'package:food_nija_web_admin/services/utils.dart';
 import 'package:food_nija_web_admin/widgets/buttons.dart';
 import 'package:food_nija_web_admin/widgets/header.dart';
+import 'package:food_nija_web_admin/widgets/side_menu.dart';
 import 'package:food_nija_web_admin/widgets/text_widget.dart';
 import 'package:iconly/iconly.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import '../widgets/side_menu.dart';
 import 'package:dotted_border/dotted_border.dart';
 
-class UploadProductForm extends StatefulWidget {
-  static const routeName = '/UploadProductForm';
+class UploadrestaurantForm extends StatefulWidget {
+  static const routeName = '/UploadrestaurantForm';
 
-  const UploadProductForm({Key? key}) : super(key: key);
+  const UploadrestaurantForm({Key? key}) : super(key: key);
 
   @override
-  _UploadProductFormState createState() => _UploadProductFormState();
+  _UploadrestaurantFormState createState() => _UploadrestaurantFormState();
 }
 
-class _UploadProductFormState extends State<UploadProductForm> {
+class _UploadrestaurantFormState extends State<UploadrestaurantForm> {
   final _formKey = GlobalKey<FormState>();
   String _catValue = 'Vegetables';
   late final TextEditingController _titleController, _priceController;
-  int _groupValue = 1;
-  bool isPiece = false;
   File? _pickedImage;
   Uint8List webImage = Uint8List(8);
   @override
@@ -53,8 +51,6 @@ class _UploadProductFormState extends State<UploadProductForm> {
   }
 
   void _clearForm() {
-    isPiece = false;
-    _groupValue = 1;
     _priceController.clear();
     _titleController.clear();
     setState(() {
@@ -102,7 +98,13 @@ class _UploadProductFormState extends State<UploadProductForm> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Header(
-                        fct: () {}, title: 'Add product', showTexField: false),
+                        fct: () {
+                          context
+                              .read<MenuController>()
+                              .controlAddProductsMenu();
+                        },
+                        title: 'Add product',
+                        showTexField: false),
                   ),
                   const SizedBox(
                     height: 25,
@@ -120,7 +122,7 @@ class _UploadProductFormState extends State<UploadProductForm> {
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           TextWidget(
-                            text: 'Food Name*',
+                            text: 'Restaurant Name*',
                             color: color,
                             isTitle: true,
                           ),
@@ -129,41 +131,22 @@ class _UploadProductFormState extends State<UploadProductForm> {
                           ),
                           TextFormField(
                             controller: _titleController,
-                            key: const ValueKey('Name'),
+                            key: const ValueKey('Restaurant'),
                             validator: (value) {
                               if (value!.isEmpty) {
-                                return 'Please enter a Title';
+                                return 'Please enter a Restaurant Name';
                               }
                               return null;
                             },
                             decoration: inputDecoration,
                           ),
                           const SizedBox(
-                            height: 10,
-                          ),
-                          TextWidget(
-                            text: 'Food Desciption*',
-                            color: color,
-                            isTitle: true,
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          TextFormField(
-                            controller: _titleController,
-                            key: const ValueKey('title'),
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return 'Please enter a Title';
-                              }
-                              return null;
-                            },
-                            decoration: inputDecoration,
+                            height: 20,
                           ),
                           Row(
                             children: [
                               Expanded(
-                                flex: 1,
+                                flex: 2,
                                 child: FittedBox(
                                   child: Column(
                                     crossAxisAlignment:
@@ -171,31 +154,44 @@ class _UploadProductFormState extends State<UploadProductForm> {
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       TextWidget(
-                                        text: 'Price in \$*',
+                                        text: 'Time*',
                                         color: color,
                                         isTitle: true,
                                       ),
                                       const SizedBox(
                                         height: 10,
                                       ),
-                                      SizedBox(
-                                        width: 100,
-                                        child: TextFormField(
-                                          controller: _priceController,
-                                          key: const ValueKey('Price \$'),
-                                          keyboardType: TextInputType.number,
-                                          validator: (value) {
-                                            if (value!.isEmpty) {
-                                              return 'Price is missed';
-                                            }
-                                            return null;
-                                          },
-                                          inputFormatters: <TextInputFormatter>[
-                                            FilteringTextInputFormatter.allow(
-                                                RegExp(r'[0-9.]')),
-                                          ],
-                                          decoration: inputDecoration,
-                                        ),
+                                      Row(
+                                        children: [
+                                          SizedBox(
+                                            width: 100,
+                                            child: TextFormField(
+                                              controller: _priceController,
+                                              key: const ValueKey('Time \$'),
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              validator: (value) {
+                                                if (value!.isEmpty) {
+                                                  return 'Time is missed';
+                                                }
+                                                return null;
+                                              },
+                                              inputFormatters: <
+                                                  TextInputFormatter>[
+                                                FilteringTextInputFormatter
+                                                    .allow(RegExp(r'[0-9.]')),
+                                              ],
+                                              decoration: inputDecoration,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 14,
+                                          ),
+                                          TextWidget(
+                                            text: 'Mins',
+                                            color: color,
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
