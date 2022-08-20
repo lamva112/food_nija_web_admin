@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:food_nija_web_admin/inner_screens/add_prod.dart';
 import 'package:food_nija_web_admin/inner_screens/add_res.dart';
+import 'package:food_nija_web_admin/services/global_method.dart';
 import 'package:food_nija_web_admin/services/utils.dart';
 import 'package:food_nija_web_admin/widgets/text_widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class RestaurantWidget extends StatefulWidget {
+  final String id;
   const RestaurantWidget({
     Key? key,
+    required this.id,
   }) : super(key: key);
 
   @override
@@ -14,6 +19,36 @@ class RestaurantWidget extends StatefulWidget {
 }
 
 class _RestaurantWidgetState extends State<RestaurantWidget> {
+  String ResName = "";
+  String Time = '';
+  String? imageUrl;
+
+  @override
+  void initState() {
+    getRestaurantsData();
+    super.initState();
+  }
+
+  Future<void> getRestaurantsData() async {
+    try {
+      final DocumentSnapshot restaurantDoc = await FirebaseFirestore.instance
+          .collection('restaurants')
+          .doc(widget.id)
+          .get();
+      if (restaurantDoc == null) {
+        return;
+      } else {
+        setState(() {
+          ResName = restaurantDoc.get('resName');
+          Time = restaurantDoc.get('time');
+          imageUrl = restaurantDoc.get('imageUrl');
+        });
+      }
+    } catch (error) {
+      GlobalMethods.errorDialog(subtitle: '$error', context: context);
+    } finally {}
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = Utils(context).getScreenSize;
@@ -38,10 +73,12 @@ class _RestaurantWidgetState extends State<RestaurantWidget> {
                   children: [
                     Flexible(
                       flex: 3,
-                      child: Image.asset(
-                        'assets/images/RestaurantCake.png',
+                      child: Image.network(
+                        imageUrl == null
+                            ? 'https://www.lifepng.com/wp-content/uploads/2020/11/Apricot-Large-Single-png-hd.png'
+                            : imageUrl!,
                         fit: BoxFit.fill,
-                        width: size.width * 0.25,
+                        // width: screenWidth * 0.12,
                         height: size.width * 0.12,
                       ),
                     ),
@@ -49,13 +86,16 @@ class _RestaurantWidgetState extends State<RestaurantWidget> {
                     PopupMenuButton(
                       itemBuilder: (context) => [
                         PopupMenuItem(
+                          // ignore: sort_child_properties_last
                           child: InkWell(
                             onTap: (() {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      const UploadProductForm(),
+                                  builder: (context) => UploadProductForm(
+                                    id: widget.id,
+                                    resName: ResName,
+                                  ),
                                 ),
                               );
                             }),
@@ -71,14 +111,6 @@ class _RestaurantWidgetState extends State<RestaurantWidget> {
                           child: Text('Edit'),
                           value: 1,
                         ),
-                        PopupMenuItem(
-                          onTap: () {},
-                          child: Text(
-                            'Delete',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                          value: 2,
-                        ),
                       ],
                     ),
                   ],
@@ -87,7 +119,7 @@ class _RestaurantWidgetState extends State<RestaurantWidget> {
                   height: 12,
                 ),
                 TextWidget(
-                  text: 'Healthy Food',
+                  text: ResName,
                   color: color,
                   textSize: 24,
                   isTitle: true,

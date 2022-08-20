@@ -5,8 +5,19 @@ import 'consts/theme_data.dart';
 import 'controllers/MenuController.dart';
 import 'providers/dark_theme_provider.dart';
 import 'screens/main_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: FirebaseOptions(
+      apiKey: "AIzaSyBqVrKdHDL8ed4JIeA1FFeOZFSGyEHsQ9U",
+      appId: "1:410962667981:web:c75067450a49752abdfc84",
+      messagingSenderId: "410962667981",
+      projectId: "food-ninja-app-66fcd",
+      storageBucket: "food-ninja-app-66fcd.appspot.com",
+    ),
+  );
   runApp(const MyApp());
 }
 
@@ -51,10 +62,7 @@ class _MyAppState extends State<MyApp> {
               title: 'Grocery',
               theme: Styles.themeData(themeProvider.getDarkTheme, context),
               home: const MainScreen(),
-              routes: {
-                UploadProductForm.routeName: (context) =>
-                    const UploadProductForm(),
-              });
+              routes: {});
         },
       ),
     );
