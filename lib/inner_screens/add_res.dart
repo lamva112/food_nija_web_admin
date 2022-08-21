@@ -34,17 +34,23 @@ class UploadrestaurantForm extends StatefulWidget {
 class _UploadrestaurantFormState extends State<UploadrestaurantForm> {
   final _formKey = GlobalKey<FormState>();
   String _catValue = 'Vegetables';
-  late final TextEditingController _titleController, _priceController;
+  late final TextEditingController _titleController,
+      _kmController,
+      _priceController,
+      _desController;
   File? _pickedImage;
   Uint8List webImage = Uint8List(8);
   bool _isLoading = false;
-  Uint8List? _file;
+  Uint8List? _filelogo;
+  Uint8List? _fileView;
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
   @override
   void initState() {
     _priceController = TextEditingController();
     _titleController = TextEditingController();
+    _desController = TextEditingController();
+    _kmController = TextEditingController();
     super.initState();
   }
 
@@ -52,37 +58,52 @@ class _UploadrestaurantFormState extends State<UploadrestaurantForm> {
   void dispose() {
     _priceController.dispose();
     _titleController.dispose();
+    _desController.dispose();
+    _kmController.dispose();
     super.dispose();
   }
 
   void _uploadForm() async {
     final isValid = _formKey.currentState!.validate();
-    if (_file == null) {
+    if (_fileView == null || _filelogo == null) {
       GlobalMethods.errorDialog(
           subtitle: 'Please pick up an image', context: context);
       return;
     }
-    final _uuid = const Uuid().v4();
+    final _uuid1 = const Uuid().v4();
+
     try {
       setState(() {
         _isLoading = true;
       });
 
-      Reference ref =
-          _storage.ref().child('restaurantsImages').child(_uuid + '.jpg');
+      Reference ref1 =
+          _storage.ref().child('restaurantsImages').child(_uuid1 + '.jpg');
 
-      UploadTask uploadTask = ref.putData(_file!);
-      TaskSnapshot snapshot = await uploadTask;
-      String downloadUrl = await snapshot.ref.getDownloadURL();
+      UploadTask uploadTask1 = ref1.putData(_filelogo!);
+
+      Reference ref2 =
+          _storage.ref().child('ViewrestaurantsImages').child(_uuid1 + '.jpg');
+
+      UploadTask uploadTask2 = ref2.putData(_fileView!);
+
+      TaskSnapshot snapshot1 = await uploadTask1;
+      String downloadUrl1 = await snapshot1.ref.getDownloadURL();
+
+      TaskSnapshot snapshot2 = await uploadTask1;
+      String downloadUrl2 = await snapshot1.ref.getDownloadURL();
 
       await FirebaseFirestore.instance
           .collection('restaurants')
-          .doc(_uuid)
+          .doc(_uuid1)
           .set({
-        'id': _uuid,
-        'resName': _titleController.text,
+        'id': _uuid1,
+        'resName': _titleController.text.toLowerCase(),
+        'des': _desController.text.toLowerCase(),
         'time': _priceController.text,
-        'imageUrl': downloadUrl.toString(),
+        'km': _kmController.text,
+        'imageUrl': downloadUrl1.toString(),
+        'viewUrl': downloadUrl2.toString(),
         'createdAt': Timestamp.now(),
       });
       _clearForm();
@@ -91,9 +112,6 @@ class _UploadrestaurantFormState extends State<UploadrestaurantForm> {
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.CENTER,
         timeInSecForIosWeb: 1,
-        // backgroundColor: ,
-        // textColor: ,
-        // fontSize: 16.0
       );
     } on FirebaseException catch (error) {
       GlobalMethods.errorDialog(subtitle: '${error.message}', context: context);
@@ -115,8 +133,11 @@ class _UploadrestaurantFormState extends State<UploadrestaurantForm> {
   void _clearForm() {
     _priceController.clear();
     _titleController.clear();
+    _desController.clear();
+    _kmController.clear();
     setState(() {
-      _file = null;
+      _filelogo = null;
+      _fileView = null;
     });
   }
 
@@ -206,6 +227,28 @@ class _UploadrestaurantFormState extends State<UploadrestaurantForm> {
                             const SizedBox(
                               height: 20,
                             ),
+                            TextWidget(
+                              text: 'introduce about restaurant*',
+                              color: color,
+                              isTitle: true,
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            TextFormField(
+                              controller: _desController,
+                              key: const ValueKey('Description'),
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return 'Please enter a Description';
+                                }
+                                return null;
+                              },
+                              decoration: inputDecoration,
+                            ),
+                            const SizedBox(
+                              height: 20,
+                            ),
                             Row(
                               children: [
                                 Expanded(
@@ -257,6 +300,49 @@ class _UploadrestaurantFormState extends State<UploadrestaurantForm> {
                                             ),
                                           ],
                                         ),
+                                        SizedBox(
+                                          height: 24,
+                                        ),
+                                        TextWidget(
+                                          text: 'Km*',
+                                          color: color,
+                                          isTitle: true,
+                                        ),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        Row(
+                                          children: [
+                                            SizedBox(
+                                              width: 100,
+                                              child: TextFormField(
+                                                controller: _kmController,
+                                                key: const ValueKey('Km'),
+                                                keyboardType:
+                                                    TextInputType.number,
+                                                validator: (value) {
+                                                  if (value!.isEmpty) {
+                                                    return 'kM is missed';
+                                                  }
+                                                  return null;
+                                                },
+                                                inputFormatters: <
+                                                    TextInputFormatter>[
+                                                  FilteringTextInputFormatter
+                                                      .allow(RegExp(r'[0-9.]')),
+                                                ],
+                                                decoration: inputDecoration,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 14,
+                                            ),
+                                            TextWidget(
+                                              text: 'km',
+                                              color: color,
+                                            ),
+                                          ],
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -276,8 +362,8 @@ class _UploadrestaurantFormState extends State<UploadrestaurantForm> {
                                         borderRadius:
                                             BorderRadius.circular(12.0),
                                       ),
-                                      child: _file == null
-                                          ? dottedBorder(color: color)
+                                      child: _filelogo == null
+                                          ? dottedBorderLogo(color: color)
                                           : SizedBox(
                                               height: 45.0,
                                               width: 45.0,
@@ -289,7 +375,8 @@ class _UploadrestaurantFormState extends State<UploadrestaurantForm> {
                                                     fit: BoxFit.fill,
                                                     alignment: FractionalOffset
                                                         .topCenter,
-                                                    image: MemoryImage(_file!),
+                                                    image:
+                                                        MemoryImage(_filelogo!),
                                                   )),
                                                 ),
                                               ),
@@ -297,6 +384,7 @@ class _UploadrestaurantFormState extends State<UploadrestaurantForm> {
                                     ),
                                   ),
                                 ),
+
                                 Expanded(
                                   flex: 1,
                                   child: FittedBox(
@@ -305,7 +393,85 @@ class _UploadrestaurantFormState extends State<UploadrestaurantForm> {
                                         TextButton(
                                           onPressed: () {
                                             setState(() {
-                                              _file = null;
+                                              _filelogo = null;
+                                            });
+                                          },
+                                          child: TextWidget(
+                                            text: 'Clear',
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {},
+                                          child: TextWidget(
+                                            text: 'Update image',
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 82,
+                                  child: TextWidget(
+                                    text: 'Add a view of the restaurans',
+                                    color: color,
+                                    isTitle: true,
+                                  ),
+                                ),
+                                Spacer(),
+                                // Image to be picked code is here
+                                Expanded(
+                                  flex: 4,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Container(
+                                      height: size.width > 650
+                                          ? 350
+                                          : size.width * 0.45,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .scaffoldBackgroundColor,
+                                        borderRadius:
+                                            BorderRadius.circular(12.0),
+                                      ),
+                                      child: _fileView == null
+                                          ? dottedBorderView(color: color)
+                                          : SizedBox(
+                                              height: 45.0,
+                                              width: 45.0,
+                                              child: AspectRatio(
+                                                aspectRatio: 487 / 451,
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                      image: DecorationImage(
+                                                    fit: BoxFit.fill,
+                                                    alignment: FractionalOffset
+                                                        .topCenter,
+                                                    image:
+                                                        MemoryImage(_fileView!),
+                                                  )),
+                                                ),
+                                              ),
+                                            ),
+                                    ),
+                                  ),
+                                ),
+
+                                Expanded(
+                                  flex: 1,
+                                  child: FittedBox(
+                                    child: Column(
+                                      children: [
+                                        TextButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _fileView = null;
                                             });
                                           },
                                           child: TextWidget(
@@ -348,7 +514,7 @@ class _UploadrestaurantFormState extends State<UploadrestaurantForm> {
                                   ),
                                 ],
                               ),
-                            )
+                            ),
                           ],
                         ),
                       ),
@@ -363,7 +529,7 @@ class _UploadrestaurantFormState extends State<UploadrestaurantForm> {
     );
   }
 
-  _selectImage(BuildContext parentContext) async {
+  _selectImageView(BuildContext parentContext) async {
     return showDialog(
       context: parentContext,
       builder: (BuildContext context) {
@@ -377,7 +543,7 @@ class _UploadrestaurantFormState extends State<UploadrestaurantForm> {
                   Navigator.pop(context);
                   Uint8List file = await pickImage(ImageSource.camera);
                   setState(() {
-                    _file = file;
+                    _fileView = file;
                   });
                 }),
             SimpleDialogOption(
@@ -387,7 +553,7 @@ class _UploadrestaurantFormState extends State<UploadrestaurantForm> {
                   Navigator.of(context).pop();
                   Uint8List file = await pickImage(ImageSource.gallery);
                   setState(() {
-                    _file = file;
+                    _fileView = file;
                   });
                 }),
             SimpleDialogOption(
@@ -403,7 +569,47 @@ class _UploadrestaurantFormState extends State<UploadrestaurantForm> {
     );
   }
 
-  Widget dottedBorder({
+  _selectImageLogo(BuildContext parentContext) async {
+    return showDialog(
+      context: parentContext,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: const Text('Create a Post'),
+          children: <Widget>[
+            SimpleDialogOption(
+                padding: const EdgeInsets.all(20),
+                child: const Text('Take a photo'),
+                onPressed: () async {
+                  Navigator.pop(context);
+                  Uint8List file1 = await pickImage(ImageSource.camera);
+                  setState(() {
+                    _filelogo = file1;
+                  });
+                }),
+            SimpleDialogOption(
+                padding: const EdgeInsets.all(20),
+                child: const Text('Choose from Gallery'),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  Uint8List file1 = await pickImage(ImageSource.gallery);
+                  setState(() {
+                    _filelogo = file1;
+                  });
+                }),
+            SimpleDialogOption(
+              padding: const EdgeInsets.all(20),
+              child: const Text("Cancel"),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  Widget dottedBorderView({
     required Color color,
   }) {
     return Padding(
@@ -428,7 +634,44 @@ class _UploadrestaurantFormState extends State<UploadrestaurantForm> {
                 ),
                 TextButton(
                     onPressed: (() {
-                      _selectImage(context);
+                      _selectImageView(context);
+                    }),
+                    child: TextWidget(
+                      text: 'Choose an image',
+                      color: Colors.blue,
+                    ))
+              ],
+            ),
+          )),
+    );
+  }
+
+  Widget dottedBorderLogo({
+    required Color color,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: DottedBorder(
+          dashPattern: const [6.7],
+          borderType: BorderType.RRect,
+          color: color,
+          radius: const Radius.circular(12),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.image_outlined,
+                  color: color,
+                  size: 50,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                TextButton(
+                    onPressed: (() {
+                      _selectImageLogo(context);
                     }),
                     child: TextWidget(
                       text: 'Choose an image',
