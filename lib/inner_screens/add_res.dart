@@ -90,7 +90,7 @@ class _UploadrestaurantFormState extends State<UploadrestaurantForm> {
       TaskSnapshot snapshot1 = await uploadTask1;
       String downloadUrl1 = await snapshot1.ref.getDownloadURL();
 
-      TaskSnapshot snapshot2 = await uploadTask1;
+      TaskSnapshot snapshot2 = await uploadTask2;
       String downloadUrl2 = await snapshot1.ref.getDownloadURL();
 
       await FirebaseFirestore.instance

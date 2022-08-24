@@ -1,17 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:food_nija_web_admin/services/global_method.dart';
 import 'package:food_nija_web_admin/services/utils.dart';
 import 'package:food_nija_web_admin/widgets/text_widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class OrdersWidget extends StatefulWidget {
-  const OrdersWidget({Key? key}) : super(key: key);
+  final String orderId;
 
+  const OrdersWidget({
+    Key? key,
+    required this.price,
+    required this.totalPrice,
+    required this.productId,
+    required this.userId,
+    required this.imageUrl,
+    required this.userName,
+    required this.quantity,
+    required this.orderDate,
+    required this.orderId,
+  }) : super(key: key);
+  final double price, totalPrice;
+  final String productId, userId, imageUrl, userName;
+  final int quantity;
+  final Timestamp orderDate;
   @override
   _OrdersWidgetState createState() => _OrdersWidgetState();
 }
 
 class _OrdersWidgetState extends State<OrdersWidget> {
+  late String orderDateStr;
   @override
   void initState() {
+    var postDate = widget.orderDate.toDate();
+    orderDateStr = '${postDate.day}/${postDate.month}/${postDate.year}';
     super.initState();
   }
 
@@ -34,8 +56,7 @@ class _OrdersWidgetState extends State<OrdersWidget> {
               Flexible(
                 flex: size.width < 650 ? 3 : 1,
                 child: Image.network(
-                  'https://www.lifepng.com/wp-content/uploads/2020/11/Apricot-Large-Single-png-hd.png',
-
+                  widget.imageUrl,
                   fit: BoxFit.fill,
                   // height: screenWidth * 0.15,
                   // width: screenWidth * 0.15,
@@ -51,7 +72,8 @@ class _OrdersWidgetState extends State<OrdersWidget> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     TextWidget(
-                      text: '12x For \$19.9',
+                      text:
+                          '${widget.quantity}X For \$${widget.price.toStringAsFixed(2)}',
                       color: color,
                       textSize: 16,
                       isTitle: true,
@@ -65,25 +87,79 @@ class _OrdersWidgetState extends State<OrdersWidget> {
                             textSize: 16,
                             isTitle: true,
                           ),
-                          TextWidget(
-                            text: '  Hadi K.',
-                            color: color,
-                            textSize: 14,
-                            isTitle: true,
-                          ),
+                          Text('  ${widget.userName}')
                         ],
                       ),
                     ),
-                    const Text(
-                      '20/03/2022',
+                    Text(
+                      orderDateStr,
                     )
                   ],
                 ),
+              ),
+              Row(
+                children: [
+                  TextWidget(
+                    text: "change status",
+                    color: color,
+                    textSize: 18,
+                    isTitle: true,
+                  ),
+                  SizedBox(
+                    width: 25,
+                  ),
+                  PopupMenuButton(
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        child: InkWell(
+                          onTap: () {
+                            _updateStatus(
+                                orderId: widget.orderId, status: "Devivery");
+                          },
+                          child: Text(
+                            'Devivery',
+                            style: TextStyle(color: Colors.green),
+                          ),
+                        ),
+                        value: 3,
+                      ),
+                      PopupMenuItem(
+                        child: InkWell(
+                            onTap: () {
+                              _updateStatus(
+                                  orderId: widget.orderId, status: "Complete");
+                            },
+                            child: Text('Complete')),
+                        value: 1,
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _updateStatus({
+    required String orderId,
+    required String status,
+  }) async {
+    FocusScope.of(context).unfocus();
+
+    try {
+      FirebaseFirestore.instance.collection('orders').doc(orderId).update({
+        'status': status,
+      });
+      await Fluttertoast.showToast(
+        msg: "our information has been updated",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+      );
+    } catch (error) {
+      GlobalMethods.errorDialog(subtitle: '$error', context: context);
+    } finally {}
   }
 }

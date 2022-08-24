@@ -43,6 +43,7 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
                         height: 25,
                       ),
                       Header(
+                        showTexField: false,
                         fct: () {
                           context.read<MenuController>().controlAllOrder();
                         },
@@ -53,7 +54,9 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
                       ),
                       const Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: OrdersList(),
+                        child: OrdersList(
+                          isInDashboard: false,
+                        ),
                       ),
                     ],
                   ),
