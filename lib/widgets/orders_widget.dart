@@ -4,6 +4,8 @@ import 'package:food_nija_web_admin/services/utils.dart';
 import 'package:food_nija_web_admin/widgets/text_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:uuid/uuid.dart';
+import 'package:intl/intl.dart';
 
 class OrdersWidget extends StatefulWidget {
   final String orderId;
@@ -30,6 +32,8 @@ class OrdersWidget extends StatefulWidget {
 
 class _OrdersWidgetState extends State<OrdersWidget> {
   late String orderDateStr;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  DateTime date = DateTime.now();
   @override
   void initState() {
     var postDate = widget.orderDate.toDate();
@@ -114,7 +118,14 @@ class _OrdersWidgetState extends State<OrdersWidget> {
                         child: InkWell(
                           onTap: () {
                             _updateStatus(
-                                orderId: widget.orderId, status: "Devivery");
+                              orderId: widget.orderId,
+                              status: "Devivery",
+                            );
+                            _Addnotification(
+                                userId: widget.userId,
+                                foodPic:
+                                    "https://firebasestorage.googleapis.com/v0/b/food-ninja-app-66fcd.appspot.com/o/notification%2Fsuccess.png?alt=media&token=6fe00812-43c3-4347-b6c7-84d80eb6bd3c",
+                                title: "we are delivering your order");
                           },
                           child: Text(
                             'Devivery',
@@ -128,6 +139,11 @@ class _OrdersWidgetState extends State<OrdersWidget> {
                             onTap: () {
                               _updateStatus(
                                   orderId: widget.orderId, status: "Complete");
+                              _Addnotification(
+                                  userId: widget.userId,
+                                  foodPic:
+                                      "https://firebasestorage.googleapis.com/v0/b/food-ninja-app-66fcd.appspot.com/o/notification%2Fsuccess.png?alt=media&token=6fe00812-43c3-4347-b6c7-84d80eb6bd3c",
+                                  title: "your order is successfully");
                             },
                             child: Text('Complete')),
                         value: 1,
@@ -158,6 +174,31 @@ class _OrdersWidgetState extends State<OrdersWidget> {
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
       );
+    } catch (error) {
+      GlobalMethods.errorDialog(subtitle: '$error', context: context);
+    } finally {}
+  }
+
+  Future<void> _Addnotification({
+    required String userId,
+    required String foodPic,
+    required String title,
+  }) async {
+    try {
+      String NotificationId = const Uuid().v1();
+      _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('noti')
+          .doc(NotificationId)
+          .set({
+        'profilePic': foodPic,
+        'userId': userId,
+        'title': title,
+        "time": FieldValue.serverTimestamp(),
+        "lasttime": DateFormat('hh:mm a').format(DateTime.now()),
+        'date': DateFormat('yMMMMd').format(date),
+      });
     } catch (error) {
       GlobalMethods.errorDialog(subtitle: '$error', context: context);
     } finally {}
