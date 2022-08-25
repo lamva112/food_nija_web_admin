@@ -91,7 +91,7 @@ class _UploadrestaurantFormState extends State<UploadrestaurantForm> {
       String downloadUrl1 = await snapshot1.ref.getDownloadURL();
 
       TaskSnapshot snapshot2 = await uploadTask2;
-      String downloadUrl2 = await snapshot1.ref.getDownloadURL();
+      String downloadUrl2 = await snapshot2.ref.getDownloadURL();
 
       await FirebaseFirestore.instance
           .collection('restaurants')
@@ -107,6 +107,7 @@ class _UploadrestaurantFormState extends State<UploadrestaurantForm> {
         'createdAt': Timestamp.now(),
       });
       _clearForm();
+
       Fluttertoast.showToast(
         msg: "Product uploaded succefully",
         toastLength: Toast.LENGTH_LONG,
