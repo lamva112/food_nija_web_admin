@@ -124,7 +124,7 @@ class _OrdersWidgetState extends State<OrdersWidget> {
                             _Addnotification(
                                 userId: widget.userId,
                                 foodPic:
-                                    "https://firebasestorage.googleapis.com/v0/b/food-ninja-app-66fcd.appspot.com/o/notification%2Fsuccess.png?alt=media&token=6fe00812-43c3-4347-b6c7-84d80eb6bd3c",
+                                    "https://firebasestorage.googleapis.com/v0/b/food-ninja-app-66fcd.appspot.com/o/notification%2Fmotorcycle.jpg?alt=media&token=04f31a5e-43e5-43eb-bf5c-e44998189334",
                                 title: "we are delivering your order");
                           },
                           child: Text(
